@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Snake Game</title>
+    <link rel="stylesheet" href="styleSnake.css">
+    <link href="Image/logo.jpg" rel="shortcut icon" />
+</head>
+
+<body>
+    <button id="imageButton" style="display:none;"></button>
+    <div id="setting">
+        <div class="header" id="header-setting"></div>
+        <input type="checkbox" id="music-setting-checkbox">
+        <h2 style="display: inline;">Sound</h2>
+        <div class="button-group">
+            <button class="home-button" id="homebutton">Home</button>
+            <button class="reset-button" id="resetbutton">Try again</button>
+            <button class="continue-button" id="continuebutton">Continue</button>
+            <button class="next-level-button" id="nextlevel">Next Level</button>
+        </div>
+    </div>
+    <div id="overlay"></div>
+    <div id="start-screen">
+        <h1 style="font-size: 6vh;">Welcome to Snake Game of Tony Nguyen!</h1>
+        <!-- <p style="font-size: 5vh;">Please select a level of difficulty:
+            <select id="difficulty-select" style="display: inline; font-size: 5vh;">
+                <option value="1">Level 1</option>
+                <option value="2">Level 2</option>
+                <option value="3">Level 3</option>
+                <option value="4">Level 4</option>
+                <option value="5">Level 5</option>
+            </select>
+        </p> -->
+        <label>
+            <input type="checkbox" id="music-checkbox">
+            <h2 style="display: inline;">Sound</h2>
+        </label>
+        <h2 style="font-size: 5vh;">Please select a level of difficulty: </h2>
+        <div class="button-container">
+            <button class="level-button" data-level="1" id="beginner-button">Level 1</button>
+            <button class="level-button" data-level="2" id="easy-button">Level 2</button>
+            <button class="level-button" data-level="3" id="intermediate-button">Level 3</button>
+            <button class="level-button" data-level="4" id="hard-button">Level 4</button>
+            <button class="level-button" data-level="5" id="expert-button">Level 5</button>
+            <button class="level-button" data-level="6" id="extreme-button">Level 6</button>
+        </div>
+    </div>
+    <!-- <button id="start-button" style="font-size: 6vh;">Start Game</button> -->
+    </div>
+    <div id="boardgame" style="display:none;">
+        <div>
+            <div id="timer-container" style="display: none; float: left;">
+                <div id="timer-bar"></div>
+                <div class="timer-label">Health</div>
+            </div>
+            <h2 id="numscore" style="display: inline; float: right;padding-left: 10px;">Apples: <div id="score"
+                    style="display: inline;"></div> <img src="Image/food.png" alt="food"
+                    style="max-width: 100%; max-height: 24px;">
+            </h2>
+            <h2 id="labelTimeGame" style="display: none; float: left; padding-left: 20px;">Left Time:<div id="time-game"
+                    style="display: inline;">s</div>
+            </h2>
+
+            <h2 id="fruits" style="display: none; float: right;"><div id="fruit-game"
+                    style="display: inline;"></div>
+            </h2>
+            <h2 id="time-lable-fruits" style="display: none; float:right; padding-right: 20px;">LifeTime:<div id="time-fruits"
+                    style="display: inline;"></div>
+            </h2>
+
+        </div>
+        <canvas id="canvas"></canvas>
+    </div>
+    <script src="scriptSnake.js"></script>
+</body>
+
+</html>
