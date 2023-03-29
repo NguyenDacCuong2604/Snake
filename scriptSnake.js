@@ -21,7 +21,7 @@ imageMango.src = "Image/mango.png";
 var imagePeach = new Image();
 imagePeach.src = "Image/peach.png";
 var imageStrawberry = new Image();
-imageStrawberry.src = "Imagestrawberry.png";
+imageStrawberry.src = "Image/strawberry.png";
 let listFruits = [imageGrapes, imageBanana, imageMango, imagePeach, imageStrawberry];
 // Nhạc nền
 const musicSound = new Audio('Music/music.mp3');
@@ -89,19 +89,29 @@ var timeFruits;
 var fruitsIntervalId = null;
 const timeFruitsLabel = document.getElementById("time-lable-fruits");
 const countFruits = document.getElementById("time-fruits");
-//level6. kho
+//title level in boardgame
+const titleLevel = document.getElementById("title-level");
+//rules
+const rulesButton = document.getElementById("rulesbutton");
+const rulesDiv = document.getElementById("rulesdiv");
+const rulesOk = document.getElementById("rulesok");
+const rulesHeader = document.getElementById("level-header");
+const rulesText = document.getElementById("rules-text");
 
+var isJoin = false;
+
+//speed 
+var speed = 80;
 // Viết sự kiện bàn phím di chuyển rắn
 // a, arrow left: Left
 // s, arrow down: Down
 // d, arrow right: Right
 // w, arrow up: Up
-
 document.addEventListener("keydown", event => {
     const now = Date.now();
     const elapsed = now - lastPress;
     if (countIntervalId == null) {
-        if (elapsed > 70) {
+        if (elapsed > 50) {
             switch (event.key) {
                 case "ArrowUp":
                     if (direction !== "down") {
@@ -156,21 +166,22 @@ function gameLoop() {
             head = { x: snake[0].x, y: snake[0].y };
             switch (direction) {
                 case "up":
-                    head.y -= 1;
+                    head.y -= 1; //trên
                     break;
                 case "down":
-                    head.y += 1;
+                    head.y += 1; //dưới
                     break;
                 case "left":
-                    head.x -= 1;
+                    head.x -= 1; //trái
                     break;
                 case "right":
-                    head.x += 1;
+                    head.x += 1; //phải
                     break;
             }
+            //thêm 1 node vào đầu mảng của snake
             snake.unshift(head);
         }
-
+        //cho phép đi xuyên tường, nếu vượt ngưỡng trên thì sẽ xuất hiện phía dưới và ngược lại , tương tự trái, phải
         if (head.x < 0) {
             head.x = col - 1;
         }
@@ -183,13 +194,11 @@ function gameLoop() {
         if (head.y >= row) {
             head.y = 0;
         }
-        // Kiểm tra va chạm tường hay không
-        if (matrix[head.y][head.x] === 1) {
-            loseGame();
-        }
-        //level5
+
+        //level 5 và 6
         if (levelGame == 4 || levelGame == 5) {
             for (let i = 0; i < fruits.length; i++) {
+                //khi ăn được trái cây theo nhiệm vụ, sẽ tăng count trái cây nhiệm vụ đó lên
                 if (fruits[i] != null && head.x === fruits[i].x && head.y === fruits[i].y) {
                     if (i == randomFruit1) {
                         numFruit1++;
@@ -199,6 +208,7 @@ function gameLoop() {
                         numFruit2++;
                         updateFruitsLabel();
                     }
+                    //khi ăn rồi cho giá trị null để ẩn trên canvas
                     fruits[i] = null;
                 }
             }
@@ -206,12 +216,15 @@ function gameLoop() {
         // Kiểm tra rắn có ăn mồi hay không
         if (food != null && head.x === food.x && head.y === food.y) {
             //score
+            //level4 và 6: khi ăn được mồi sẽ hồi lại thời gian sống của snake
             if (levelGame == 3 || levelGame == 5) {
                 timeLeft = 10;
                 timerBar.style.transform = `scaleX(${1})`;
             }
+            //level5 và 6: 
             if (levelGame == 4 || levelGame == 5) {
                 numberApple += 1;
+                //khi ăn được số táo chẵn, sẽ hiện ra vật phẩm
                 if (numberApple > 0 && numberApple % 2 == 0) {
                     createFruits();
                     timeFruits = 6;
@@ -222,81 +235,93 @@ function gameLoop() {
                     countTimeFruits();
                 }
             }
+            //tạo thức ăn cho snake
             if (numberScore > 1) {
                 food = createFood();
                 numberScore -= 1;
             }
             else {
                 numberScore -= 1;
-                gateWin = createFood();
-                if (levelGame == 5) {
+                //level 5 chỉ cần làm nhiệm vụ nên không cần mở cổng win
+                if (levelGame != 4) {
+                    gateWin = createFood();
+                }
+                // level 5, 6: đạt yêu cầu số apple vẫn tạo tiếp số lượng apple
+                if (levelGame == 5 || levelGame == 4) {
                     food = createFood();
                 }
+                //các level còn lại ngừng tạo food do đã có cổng win
                 else {
                     food = null;
                 }
             }
 
         }
+        //snake chui vào cổng win 
         else if (gateWin != null && head.x === gateWin.x && head.y === gateWin.y) {
+            // dừng rắn duy chuyển
             checkWin = false;
+            //rút ngắn snake lại
             snake.pop();
         }
+        //duy chuyển rắn: tăng phần đầu, nên giảm phần cuối
         else {
             snake.pop();
         }
 
+        draw();
+        // Kiểm tra va chạm tường hay không
+        if (matrix[head.y][head.x] === 1) {
+            //va chạm vào tường -> thua
+            loseGame();
+            return;
+        }
         // Check conflict
         if (checkConflict()) {
             loseGame();
+            return
         }
         // Check win
         if (snake.length == 0) {
+            //level 6, nếu rắn chui vào cổng win nhưng chưa xong nhiệm vụ sẽ lose
             if (levelGame == 5) {
                 if (numFruit1 >= 1 && numFruit2 >= 2) {
                     winGame();
+                    return;
                 }
                 else {
                     loseGame();
+                    return;
                 }
             }
+            //level khác thì win
             else {
                 winGame();
+                return;
             }
 
         }
-        draw();
         // schedule the next frame
-        timeout = setTimeout(gameLoop, 70);
+        //speed
+        timeout = setTimeout(gameLoop, speed);
     }
 }
 function loseGame() {
+    //hiển thị div setting
+    settingControl();
+    //chỉnh sửa tiêu đề
     header.innerText = "You Lose!!!";
-    settingDiv.style.display = 'block';
-    overlay.style.display = 'block';
-    gateWin = false;
-    checkWin = true;
-    isDraw = false;
-    if (gameIntervalId != null) {
-        clearInterval(gameIntervalId);
-        gameIntervalId = null;
-    }
+    //ẩn button tiếp tục
     continueButton.disabled = true;
-    if (levelGame == 5) {
-        nextlevelButton.disabled = true;
-    }
+
 }
 function winGame() {
+    //hiển div setting
+    settingControl();
+    //chỉnh sửa tiêu đề
     header.innerText = "You Win!!!";
-    settingDiv.style.display = 'block';
-    overlay.style.display = 'block';
-    gateWin = false;
-    checkWin = true;
-    isDraw = false;
+    //ẩn button tiếp tục
     continueButton.disabled = true;
-    if (levelGame == 5) {
-        nextlevelButton.disabled = true;
-    }
 }
 //checkbox music
 musicCheckbox.addEventListener("change", function () {
@@ -359,17 +384,20 @@ function timeHungry() {
 function countTimeFruits() {
     fruitsIntervalId = setInterval(() => {
         if (isDraw) {
+            //hiển thị thời gian đếm ngược vật phẩm
             countFruits.innerHTML = timeFruits;
             timeFruits--;
             if (timeFruits < 0) {
                 clearInterval(fruitsIntervalId);
                 nullFruits();
                 timeFruitsLabel.style.display = 'none';
+                return;
             }
         }
     }, 1000);
 }
 //function create null fruits
+//tạo null cho các fruits để không vẽ lên canvas
 function nullFruits() {
     for (let i = 0; i < fruits.length; i++) {
         fruits[i] = null;
@@ -379,33 +407,40 @@ function nullFruits() {
 function countDown() {
     gameIntervalId = setInterval(() => {
         if (isDraw) {
+            //hiển thị thời gian của game
             timegameLabel.innerHTML = timeGame;
             timeGame--;
             if (timeGame < 0) {
                 clearInterval(gameIntervalId);
                 if (levelGame == 2 || levelGame == 5) {
+                    // level 3,6 nếu quá thời gian sẽ thua
                     loseGame();
+                    return;
                 }
                 else if (levelGame == 4) {
+                    // level 5
+                    // kiểm tra số lượng vật phẩm đạt được
                     if (numFruit1 >= 1 && numFruit2 >= 2) {
                         winGame();
                     }
                     else {
                         loseGame();
                     }
+                    return;
                 }
             }
         }
     }, 1000);
 }
-// nhấn setting 
-var settingDiv = document.getElementById('setting');
-var overlay = document.getElementById('overlay');
-setting.addEventListener('click', function () {
+function settingControl() {
+    //tiêu đề
     header.innerText = "Setting";
+    //hiện div setting
     settingDiv.style.display = 'block';
     overlay.style.display = 'block';
+    //dừng draw
     isDraw = false;
+    //dừng các thời gian đếm lại, cho = null
     if (timeout != null) {
         clearTimeout(timeout);
         timeout = null;
@@ -427,76 +462,53 @@ setting.addEventListener('click', function () {
         clearInterval(fruitsIntervalId);
         fruitsIntervalId = null;
     }
+    //nếu đang ở level 6 thì disabled nextlevel vì không lên tiếp lv được
     if (levelGame == 5) {
         nextlevelButton.disabled = true;
     }
-});
+}
+// nhấn setting 
+var settingDiv = document.getElementById('setting');
+var overlay = document.getElementById('overlay');
+setting.addEventListener('click', settingControl);
 //button continue
 continueButton.addEventListener('click', function () {
     settingDiv.style.display = 'none';
     overlay.style.display = 'none';
     isDraw = true;
+    count = 3;
     start();
 })
 //button home
 homeButton.addEventListener('click', function () {
-    scoreLabel.style.display = 'inline';
-    labeltimegame.style.display = 'none';
-    timeContainer.style.display = 'none';
+    //ẩn div setting
     settingDiv.style.display = 'none';
     overlay.style.display = 'none';
+    //hiển thị trang chủ
     startScreen.style.display = "flex";
+    //Ẩn board game
     boardgame.style.display = "none";
+    //ẩn button setting
     setting.style.display = "none";
-    timeFruitsLabel.style.display = 'none';
-    labelFruits.style.display = 'none';
-    timeout = null;
-    isDraw = true;
+    //ẩn title level
+    titleLevel.style.display = "none";
 })
 //button reset
 resetButton.addEventListener('click', function () {
-    if (levelGame == 2) {
-        timeGame = 60;
-    }
-    else if (levelGame == 4) {
-        timeGame = 45;
-        nullFruits();
-    }
-    numberScore = 15;
-    timeLeft = 10;
+    //ẩn div setting
     settingDiv.style.display = 'none';
     overlay.style.display = 'none';
-    timeFruitsLabel.style.display = 'none';
-    isDraw = true;
-    continueButton.disabled = false;
+    //join level
     level(levelArray[levelGame]);
 })
 //buttion nextlevel
 nextlevelButton.addEventListener('click', function () {
-    // timeGame = 60;
+    //ẩn div setting
     settingDiv.style.display = 'none';
     overlay.style.display = 'none';
-    timeFruitsLabel.style.display = 'none';
-    isDraw = true;
-    continueButton.disabled = false;
-    if (levelGame + 1 == 2) {
-        labeltimegame.style.display = 'inline';
-    }
-    else if (levelGame + 1 == 3) {
-        labeltimegame.style.display = 'none';
-        timeContainer.style.display = 'inline';
-    }
-    else if (levelGame + 1 == 4) {
-        timeContainer.style.display = 'none';
-    }
-    else if (levelGame + 1 == 5) {
-        labelFruits.style.display = 'none';
-        score.style.display = 'inline';
-        timeFruitsLabel = 'none';
-    }
+    //join level tiếp theo
     level(levelArray[levelGame + 1]);
 })
-
 // Chọn Level
 var levelButtons = document.querySelectorAll(".level-button");
 levelButtons.forEach(function (button) {
@@ -504,9 +516,13 @@ levelButtons.forEach(function (button) {
 });
 //Join Board game
 function joinBoardgame() {
+    //ẩn trang chủ
     startScreen.style.display = "none";
+    //hiển thị board game
     boardgame.style.display = "block";
     setting.style.display = "block";
+    continueButton.disabled = false;
+    //chiều dài, rộng canvas
     canvas.width = 900;
     canvas.height = 600;
 }
@@ -516,16 +532,57 @@ function selectLevel() {
     var levelNumber = this.getAttribute("data-level");
     level(levelNumber);
 }
-function level(levelNumber) {
-    joinBoardgame();
+//hiển thị rules
+function showRules() {
+    overlay.style.display = "block";
+    rulesDiv.style.display = "block";
+    rulesHeader.innerText = "Level " + (levelGame + 1);
+    rulesText.innerText = createTextRules(levelGame);
+}
+//button ok of rules
+rulesOk.addEventListener('click', function () {
+    rulesDiv.style.display = "none";
+    if (!isJoin) {
+        createGame(levelGame);
+    }
+
+})
+//button rules của setting
+rulesButton.addEventListener('click', showRules);
+//create game
+function createGame(levelGame) {
+    //ẩn lớp phủ
+    overlay.style.display = "none";
+    //set interval cho cac thoi gian dem
+    timeout = null;
+    countIntervalId = null;
+    gameIntervalId = null;
+    intervalIdHungry = null;
+    fruitsIntervalId = null;
+    //draw
+    isDraw = true;
+    //khởi tạo cổng win
+    gateWin = null;
+    //biến cho rắn duy chuyển
+    checkWin = true;
+    //cho số apple reset
+    numberApple = 0;
+    //setup title level
+    titleLevel.style.display = 'block';
+    titleLevel.innerText = "Level " + (levelGame + 1);
     // Switch case chọn level
-    switch (levelNumber) {
-        case "1":
-            // Level 1
+    switch (levelGame) {
+        case 0:
+            //setup label
+            score.style.display = 'inline';
+            labeltimegame.style.display = 'none';
+            timeContainer.style.display = 'none';
+            labelFruits.style.display = 'none';
+            timeFruitsLabel.style.display = 'none';
+            //số tạo rắn phải ăn
             numberScore = 15;
-            levelGame = levelArray.indexOf(levelNumber);
             //create matrix boardgame
-            matrix = wallMatrix(levelNumber);
+            matrix = wallMatrix(levelGame);
             //create snake
             snake = [
                 { x: 10, y: 10 },
@@ -542,12 +599,18 @@ function level(levelNumber) {
             lastPress = 0;
             start();
             break;
-        case "2":
+        case 1:
+            //setup label
+            score.style.display = 'inline';
+            labeltimegame.style.display = 'none';
+            timeContainer.style.display = 'none';
+            labelFruits.style.display = 'none';
+            timeFruitsLabel.style.display = 'none';
             // Level 2
+            //số táo rắn phải ăn
             numberScore = 15;
-            levelGame = levelArray.indexOf(levelNumber);
             //create matrix boardgame
-            matrix = wallMatrix(levelNumber);
+            matrix = wallMatrix(levelGame);
             //create snake
             snake = [
                 { x: 10, y: 10 },
@@ -564,19 +627,25 @@ function level(levelNumber) {
             lastPress = 0;
             start();
             break;
-        case "3":
-            // Level 3
+        case 2:
+            //setup label
+            score.style.display = 'inline';
             labeltimegame.style.display = 'inline';
+            timeContainer.style.display = 'none';
+            labelFruits.style.display = 'none';
+            timeFruitsLabel.style.display = 'none';
+            // Level 3
+            //số táo răn phải ăn
             numberScore = 15;
+            //thời gian game
             timeGame = 60;
-            levelGame = levelArray.indexOf(levelNumber);
             //create matrix boardgame
-            matrix = wallMatrix("2");
+            matrix = wallMatrix(levelGame);
             //create snake
             snake = [
-                { x: 10, y: 10 },
-                { x: 9, y: 10 },
-                { x: 8, y: 10 },
+                { x: 5, y: 13 },
+                { x: 4, y: 13 },
+                { x: 3, y: 13 },
             ];
             // head snake
             head = { x: snake[0].x, y: snake[0].y };
@@ -588,15 +657,21 @@ function level(levelNumber) {
             lastPress = 0;
             start();
             break;
-        case "4":
-            // Level 4
+        case 3:
+            //setup label
+            score.style.display = 'inline';
+            labeltimegame.style.display = 'none';
             timeContainer.style.display = 'inline';
+            labelFruits.style.display = 'none';
+            timeFruitsLabel.style.display = 'none';
+            // Level 4
+            //thời gian sống của rắm
             timeLeft = 10;
             timerBar.style.transform = `scaleX(${1})`;
+            //số táo rắn phải ăn
             numberScore = 15;
-            levelGame = levelArray.indexOf(levelNumber);
             //create matrix boardgame
-            matrix = wallMatrix(levelNumber);
+            matrix = wallMatrix(levelGame);
             //create snake
             snake = [
                 { x: 10, y: 10 },
@@ -613,22 +688,30 @@ function level(levelNumber) {
             lastPress = 0;
             start();
             break;
-        case "5":
-            // Level 5
+        case 4:
+            //setup label
             scoreLabel.style.display = 'none';
+            score.style.display = 'none';
             labeltimegame.style.display = 'inline';
+            timeContainer.style.display = 'none';
             labelFruits.style.display = 'inline';
+            timeFruitsLabel.style.display = 'none';
+            // Level 5
+            numberApple = 0;
+            nullFruits();
+            //tạo mục tiêu vật phẩm cho rắn
             randomFruit();
+            //hiển thị label vật phẩm
             updateFruitsLabel();
+            //thời gian game
             timeGame = 45;
-            levelGame = levelArray.indexOf(levelNumber);
             //create matrix boardgame
-            matrix = wallMatrix("4");
+            matrix = wallMatrix(levelGame);
             //create snake
             snake = [
-                { x: 10, y: 10 },
-                { x: 9, y: 10 },
-                { x: 8, y: 10 },
+                { x: 10, y: 14 },
+                { x: 9, y: 14 },
+                { x: 8, y: 14 },
             ];
             // head snake
             head = { x: snake[0].x, y: snake[0].y };
@@ -640,30 +723,33 @@ function level(levelNumber) {
             lastPress = 0;
             start();
             break;
-        case "6":
+        case 5:
+            //setup label
+            score.style.display = 'inline';
+            labeltimegame.style.display = 'inline';
+            timeContainer.style.display = 'inline';
+            labelFruits.style.display = 'inline';
+            timeFruitsLabel.style.display = 'none';
             // Level 6
             // ăn 10 quả táo
             numberScore = 10;
-            // set thời gian game 60s
-            labeltimegame.style.display = 'inline';
+            // set thời gian game 60s           
             timeGame = 60;
             //thời gian đói của rắn
-            timeContainer.style.display = 'inline';
             timeLeft = 10;
+            numberApple = 0;
+            nullFruits();
             timerBar.style.transform = `scaleX(${1})`;
             //vật phẩm
-            labelFruits.style.display = 'inline';
             randomFruit();
             updateFruitsLabel();
             //tạo map game(khó)
-            matrix = wallMatrix("1");
-            //level game
-            levelGame = levelArray.indexOf(levelNumber);
+            matrix = wallMatrix(levelGame);
             //create snake
             snake = [
-                { x: 6, y: 10 },
-                { x: 5, y: 10 },
-                { x: 4, y: 10 },
+                { x: 10, y: 10 },
+                { x: 9, y: 10 },
+                { x: 8, y: 10 },
             ];
             // head snake
             head = { x: snake[0].x, y: snake[0].y };
@@ -677,6 +763,14 @@ function level(levelNumber) {
             start();
             break;
     }
+    isJoin = true;
+}
+function level(levelNumber) {
+    joinBoardgame();
+    //index level hiện tại
+    levelGame = levelArray.indexOf(levelNumber);
+    isJoin = false;
+    showRules();
 }
 //updateLabel level 5
 function updateFruitsLabel() {
@@ -690,12 +784,14 @@ function updateFruitsLabel() {
 }
 //kich thuoc 30x20
 function draw() {
+    //hiển thị số táo còn lại luôn >=0
     if (numberScore >= 0) {
         score.innerText = numberScore;
     }
     else {
         score.innerText = 0;
     }
+    //level 3, 5 và 6: hiển thị thời gian game
     if (levelGame == 2 || levelGame == 4 || levelGame == 5) {
         timegameLabel.innerHTML = timeGame;
     }
@@ -714,6 +810,7 @@ function draw() {
 
         }
     }
+    //draw snake
     ctx.fillStyle = "#4CAF50";
     snake.forEach(cell => {
         ctx.fillRect(cell.x * cellSize, cell.y * cellSize, cellSize, cellSize);
@@ -730,7 +827,7 @@ function draw() {
         ctx.fillStyle = "White";
         ctx.fillRect(gateWin.x * cellSize, gateWin.y * cellSize, cellSize, cellSize);
     }
-    //level5,  draw fruits
+    //level 5, 6  draw fruits. nếu fruit=null sẽ không hiển thị
     if (levelGame == 4 || levelGame == 5) {
         for (let i = 0; i < 5; i++) {
             if (fruits[i] != null) {
@@ -750,7 +847,6 @@ function start() {
     // Hiển thị số đếm
     countIntervalId = setInterval(function () {
         if (count > -1) {
-            // ctx.clearRect(0, 0, canvas.width, canvas.height);
             draw();
             ctx.font = "bold 72px Arial";
             ctx.fillStyle = "#fff";
@@ -762,8 +858,6 @@ function start() {
             clearInterval(countIntervalId);
             countIntervalId = null;
             count = 3;
-            // Bắt đầu vẽ canvas
-            setTimeout(gameLoop(), 1000);
             if (levelGame == 2) {
                 timeGame -= 1;
                 countDown();
@@ -784,6 +878,9 @@ function start() {
                 timeHungry();
                 countTimeFruits();
             }
+            // Bắt đầu vẽ canvas
+            setTimeout(gameLoop(), 1000);
+            return;
         }
     }, 1000);
 }
@@ -816,6 +913,7 @@ function randomFruit() {
     numFruit1 = 0;
     numFruit2 = 0;
 }
+//kiểm tra fruit có trùng với vật thể khác không
 function containsPointFruits(points, fruits, p) {
     if (matrix[p.y][p.x] === 1) {
         return true;
@@ -842,6 +940,11 @@ function containsPoint(points, p) {
             return true;
         }
     }
+    for (let i = 0; i < fruits.length; i++) {
+        if (fruits[i] != null && fruits[i].x === p.x && fruits[i].y === p.y) {
+            return true;
+        }
+    }
     return false;
 }
 //Kiểm tra sự va chạm giữa đầu rắn và thân rắn
@@ -857,51 +960,34 @@ function checkConflict() {
     return false;
 
 }
+//function tạo ma trận boardgame
 function wallMatrix(level) {
     const wallmatrix = [];
-    if (level === "1") {
+    for (let i = 0; i < row; i++) {
+        wallmatrix[i] = new Array(col).fill(0);
+    }
+    //level 1:không tường
+    if (level === 0) {
         for (let i = 0; i < row; i++) {
             wallmatrix[i] = new Array(col).fill(0);
         }
     }
-    else if (level === "2") {
-        for (let i = 0; i < row; i++) {
-            wallmatrix[i] = new Array(col).fill(0);
-            if (i === 0 || i === row - 1) {
-                // Thêm 2 bức tường trên dưới
-                wallmatrix[i] = new Array(col).fill(1);
-            }
-        }
-        // Thêm 2 bức tường 2 bên
-        for (let i = 0; i < 6; i++) {
-            wallmatrix[i][0] = 1;
-            wallmatrix[row - 1 - i][0] = 1;
-            wallmatrix[i][col - 1] = 1;
-            wallmatrix[row - 1 - i][col - 1] = 1;
-        }
-    }
-    else if (level === "4") {
+    //level 2: tường kín, không có đi xuyên tường
+    else if (level === 1) {
         for (let i = 0; i < row; i++) {
             wallmatrix[i] = new Array(col).fill(0);
             if (i === 0 || i === row - 1) {
                 // Thêm 2 bức tường trên dưới
                 wallmatrix[i] = new Array(col).fill(1);
             }
-        }
-        // Thêm 2 bức tường 2 bên
-        for (let i = 0; i < 6; i++) {
-            wallmatrix[i][0] = 1;
-            wallmatrix[row - 1 - i][0] = 1;
-            wallmatrix[i][col - 1] = 1;
-            wallmatrix[row - 1 - i][col - 1] = 1;
-        }
-        //
-        for (let i = 7; i < col - 7; i++) {
-            wallmatrix[5][i] = 1;
-            wallmatrix[row - 6][i] = 1;
+            for (let i = 0; i < row; i++) {
+                wallmatrix[i][0] = 1;
+                wallmatrix[i][col - 1] = 1;
+            }
         }
     }
-    else if (level === "3") {
+    //level 3:
+    else if (level === 2) {
         for (let i = 0; i < row; i++) {
             wallmatrix[i] = new Array(col).fill(0);
             if (i === 0 || i === row - 1) {
@@ -914,21 +1000,102 @@ function wallMatrix(level) {
             }
         }
     }
-    else if (level === "5") {
+    //level 4: 
+    else if (level === 3) {
         for (let i = 0; i < row; i++) {
             wallmatrix[i] = new Array(col).fill(0);
             if (i === 0 || i === row - 1) {
-                // Thêm bức tường ở hàng đầu tiên và hàng cuối cùng
+                // Thêm 2 bức tường trên dưới
                 wallmatrix[i] = new Array(col).fill(1);
-            } else {
-                // Thêm bức tường
-                for (let j = 0; j < col; j++) {
-                    if (Math.random() < 0.2) {
-                        wallmatrix[i][j] = 1;
-                    }
-                }
+            }
+        }
+        // Thêm 2 bức tường 2 bên
+        for (let i = 0; i < 6; i++) {
+            wallmatrix[i][0] = 1;
+            wallmatrix[row - 1 - i][0] = 1;
+            wallmatrix[i][col - 1] = 1;
+            wallmatrix[row - 1 - i][col - 1] = 1;
+        }
+        for (let i = 7; i < col - 7; i++) {
+            wallmatrix[5][i] = 1;
+            wallmatrix[row - 6][i] = 1;
+        }
+    }
+    // level 5:
+    else if (level === 4) {
+        //full 0
+        for (let i = 0; i < row; i++) {
+            wallmatrix[i] = new Array(col).fill(0);
+            if (i === 10) {
+                // Thêm 2 bức tường trên dưới
+                wallmatrix[i] = new Array(col).fill(1);
+            }
+            for (let i = 0; i < row; i++) {
+                wallmatrix[i][0] = 1;
+                wallmatrix[i][col - 1] = 1;
             }
         }
     }
+    // level 6:
+    else if (level === 5) {
+        //full 0
+        for (let i = 0; i < row; i++) {
+            wallmatrix[i] = new Array(col).fill(0);
+        }
+        // tường 2 bên
+        for (let i = 0; i < 6; i++) {
+            wallmatrix[i][0] = 1;
+            wallmatrix[row - 1 - i][0] = 1;
+            wallmatrix[i][col - 1] = 1;
+            wallmatrix[row - 1 - i][col - 1] = 1;
+        }
+        // tường trên dưới
+        for (let i = 0; i < 12; i++) {
+            wallmatrix[0][i] = 1;
+            wallmatrix[0][col - 1 - i] = 1;
+            wallmatrix[row - 1][i] = 1;
+            wallmatrix[row - 1][col - 1 - i] = 1;
+        }
+        for (let i = 5; i < 12; i++) {
+            wallmatrix[5][i] = 1;
+            wallmatrix[5][col - 1 - i] = 1;
+            wallmatrix[row - 6][i] = 1;
+            wallmatrix[row - 6][col - 1 - i] = 1;
+        }
+
+    }
     return wallmatrix;
+}
+//tạo luật chơi
+function createTextRules(levelGame) {
+    switch (levelGame) {
+        case 0:
+            return "(Vietnamese) Hãy ăn 15 quả táo để hoàn thành nhiệm vụ, khi ăn đủ 15 quả táo sẽ xuất hiện cổng chiến thắng. Đi vào cổng sẽ chiến thắng thắng màn chơi. Lưu ý rằng không được để rắn đâm vào thân rắn nhé!";
+        case 1:
+            return "(Vietnamese) Hãy ăn 15 quả táo để hoàn thành nhiệm vụ, khi ăn đủ 15 quả táo sẽ xuất hiện cổng chiến thắng. Đi vào cổng sẽ chiến thắng thắng màn chơi. Lưu ý rằng không được để rắn đâm vào thân rắn và tường nhé";
+        case 2:
+            return "(Vietnamese) Hãy ăn 15 quả táo để hoàn thành nhiệm vụ, khi ăn đủ 15 quả táo sẽ xuất hiện cổng chiến thắng. Đi vào cổng sẽ chiến thắng thắng màn chơi. Lưu ý rằng màn này có thời gian chỉ định để hoàn thành vòng chơi, nên không kịp thời gian sẽ thất bại trong vòng chơi này và không được để rắn đâm vào thân rắn và tường nhé.";
+        case 3:
+            return "(Vietnamese) Hãy ăn 15 quả táo để hoàn thành nhiệm vụ, khi ăn đủ 15 quả táo sẽ xuất hiện cổng chiến thắng. Đi vào cổng sẽ chiến thắng thắng màn chơi. Lưu ý rằng rắn sẽ có 1 khoảng thời gian để sống, nên ăn táo nhanh để hồi lại thời gian sống, nếu hết thời gian sống mà chưa hoàn thành nhiệm vụ sẽ thất bại vòng chơi và không được để rắn đâm vào thân rắn và tường nhé.";
+        case 4:
+            return "(Vietnamese) Hãy hoàn thành nhiệm vụ ăn vật phẩm của vòng chơi trong khoảng thời gian chỉ định. Cứ ăn 2 quả táo sẽ xuất hiện các vật phẩm tồn tại trong 10s, hãy cố gắng hoàn thành nhiệm vụ nhé và lưu ý rằng không được để rắn đâm vào thân rắn và tường nhé";
+        case 5:
+            return "(Vietnamese) *Màn chơi siêu khó! Hãy ăn 10 quả táo và hoàn thành nhiệm vụ ăn vật phẩm trong thời gian chỉ định để chiến thắng. Lưu ý rằng địa hình sẽ khó hơn và rắn sẽ có thời gian để sống. Hãy tận dùng thời gian, quảng đường ngắn nhất để chiến thắng. Nếu rắn đi vào cổng mà chưa hoàn thành nhiệm vụ vật phẩm thì vẫn thua nhé! Chúc may mắn ^^";
+    }
+    return "";
+}
+//slider speed
+function updateSpeed(val) {
+    // Hàm được gọi khi slider thay đổi giá trị
+    document.getElementById("speed-label").textContent = val; // Cập nhật label hiển thị tốc độ
+    speed = 110 - (val * 10);
+    document.getElementById("speed-slider-setting").value = val;
+    document.getElementById("speed-label-setting").textContent = val;
+}
+function updateSpeedSetting(val) {
+    // Hàm được gọi khi slider thay đổi giá trị
+    document.getElementById("speed-label-setting").textContent = val; // Cập nhật label hiển thị tốc độ
+    speed = 110 - (val * 10);
+    document.getElementById("speed-slider").value = val;
+    document.getElementById("speed-label").textContent = val;
 }

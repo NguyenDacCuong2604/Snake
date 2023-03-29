@@ -31,21 +31,18 @@ settingDiv, overlay : block (hiện div setting)
 
 -continue:
 settingDiv, overlay : none (ẩn div setting)
+isDraw = true (de tiep tuc ve canvas)
+start()
 
-
-timeout-ngưng lại
-isDraw-cho vẽ hay là không
-
-Home: đã làm. timeout=null, isDraw=true;
-
-
-Setting: {
-	cho timeout=null;
-}
-Home:
-Reset:
-Continue:
-Next Level:
+-nextlevel:
+settingDiv, overlay : none (ẩn div setting)
+timeFruitsLabel(ẩn, nếu như còn time hiển thị mà qua màn)
+isDraw = true (điều kiện vẽ)
+continueButton disabled=false (do nếu win game qua màn mới thì set lại continue)
+level 2 qua 3: hiển thị thời gian game (labeltimegame : inline)
+level 3 qua 4: ẩn thời gian game, hiện thời gian sống của snake (labeltimegame:none, timeContainer: inline)
+level 4 qua 5: ẩn thời gian sống của snake (timeContainer:none)
+level 5 qua 6: hiển thị lại score (score : inline)
 
 Function start: dem thoi gian 3210 de bat dau game{
 	use setInterval cua bien countIntervalId.
@@ -61,5 +58,49 @@ Function gameLoop(): hoat dong cua game{
 	dung function draw() de ve len canvas
 }
 Function countDown(): Dem thoi gian cua game
+
+
+Có 5 div hiển thị:
+1. Số lượng táo - score
+2. Thời gian game - labeltimegame
+3. Thời gian đói của rắn - timeContainer
+4. Vật phẩm - labelFruits
+5. Thời gian vật phẩm - timeFruitsLabel
+
+~Tạo 1 text hiển thị level{
++title level: khi join boardgame sẽ hiện
++trở ra trang chủ sẽ ẩn. 
+} done!
+~Tạo 1 label hiển thị luật chơi của level đó\ done!
+
+
+
+
+
+Thời gian tồn tại vật phẩm: giảm xuống 7s
+speed: 100, 90, 80, 70, 60 -> 5 speeds
+x thuộc {1 2 3 4 5} 
+công thức là speed = 110-x*10; ok
+done!
+
+âm thanh game over, game win
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

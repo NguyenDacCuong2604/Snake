@@ -8,11 +8,19 @@
 </head>
 
 <body>
+    <h1 id="title-level" style="display:none"></h1>
     <button id="imageButton" style="display:none;"></button>
     <div id="setting">
         <div class="header" id="header-setting"></div>
         <input type="checkbox" id="music-setting-checkbox">
         <h2 style="display: inline;">Sound</h2>
+        <button class="rules-button" id="rulesbutton" style="display: inline; float:right;">Rules</button>
+        <div class="slider-container" style="font-size:28px; margin-bottom: 24px;">
+            <label for="speed-slider-setting" style="font-weight: bold;">Speed:</label>
+            <input type="range" id="speed-slider-setting" name="speed-slider" min="1" max="5" value="3"
+                oninput="updateSpeedSetting(this.value)">
+            <span id="speed-label-setting">3</span>
+        </div>
         <div class="button-group">
             <button class="home-button" id="homebutton">Home</button>
             <button class="reset-button" id="resetbutton">Try again</button>
@@ -20,22 +28,24 @@
             <button class="next-level-button" id="nextlevel">Next Level</button>
         </div>
     </div>
+    <div id="rulesdiv">
+        <h1 class="header" id="level-header" style="font-family: 'VT323', monospace; font-size:30px"></h1>
+        <div id="rules-text" style="font-family: 'VT323', monospace; font-size:24px"></div>
+        <button class="rules-ok" id="rulesok">Ok</button>
+    </div>
     <div id="overlay"></div>
     <div id="start-screen">
         <h1 style="font-size: 6vh;">Welcome to Snake Game of Tony Nguyen!</h1>
-        <!-- <p style="font-size: 5vh;">Please select a level of difficulty:
-            <select id="difficulty-select" style="display: inline; font-size: 5vh;">
-                <option value="1">Level 1</option>
-                <option value="2">Level 2</option>
-                <option value="3">Level 3</option>
-                <option value="4">Level 4</option>
-                <option value="5">Level 5</option>
-            </select>
-        </p> -->
-        <label>
+        <label style="margin-bottom: 24px;">
             <input type="checkbox" id="music-checkbox">
             <h2 style="display: inline;">Sound</h2>
         </label>
+        <div class="slider-container" style="font-size:28px">
+            <label for="speed-slider" style="font-weight: bold;">Speed:</label>
+            <input type="range" id="speed-slider" name="speed-slider" min="1" max="5" value="3"
+                oninput="updateSpeed(this.value)">
+            <span id="speed-label">3</span>
+        </div>
         <h2 style="font-size: 5vh;">Please select a level of difficulty: </h2>
         <div class="button-container">
             <button class="level-button" data-level="1" id="beginner-button">Level 1</button>
@@ -62,11 +72,11 @@
                     style="display: inline;">s</div>
             </h2>
 
-            <h2 id="fruits" style="display: none; float: right;"><div id="fruit-game"
-                    style="display: inline;"></div>
+            <h2 id="fruits" style="display: none; float: right;">
+                <div id="fruit-game" style="display: inline;"></div>
             </h2>
-            <h2 id="time-lable-fruits" style="display: none; float:right; padding-right: 20px;">LifeTime:<div id="time-fruits"
-                    style="display: inline;"></div>
+            <h2 id="time-lable-fruits" style="display: none; float:right; padding-right: 20px;">LifeTime:<div
+                    id="time-fruits" style="display: inline;"></div>
             </h2>
 
         </div>
