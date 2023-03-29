@@ -553,6 +553,7 @@ rulesButton.addEventListener('click', showRules);
 function createGame(levelGame) {
     //ẩn lớp phủ
     overlay.style.display = "none";
+    nextlevelButton.disabled = false;
     //set interval cho cac thoi gian dem
     timeout = null;
     countIntervalId = null;
