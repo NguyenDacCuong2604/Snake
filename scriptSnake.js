@@ -574,6 +574,7 @@ function createGame(levelGame) {
     switch (levelGame) {
         case 0:
             //setup label
+            scoreLabel.style.display = 'inline';
             score.style.display = 'inline';
             labeltimegame.style.display = 'none';
             timeContainer.style.display = 'none';
@@ -601,6 +602,7 @@ function createGame(levelGame) {
             break;
         case 1:
             //setup label
+            scoreLabel.style.display = 'inline';
             score.style.display = 'inline';
             labeltimegame.style.display = 'none';
             timeContainer.style.display = 'none';
@@ -629,6 +631,7 @@ function createGame(levelGame) {
             break;
         case 2:
             //setup label
+            scoreLabel.style.display = 'inline';
             score.style.display = 'inline';
             labeltimegame.style.display = 'inline';
             timeContainer.style.display = 'none';
@@ -659,6 +662,7 @@ function createGame(levelGame) {
             break;
         case 3:
             //setup label
+            scoreLabel.style.display = 'inline';
             score.style.display = 'inline';
             labeltimegame.style.display = 'none';
             timeContainer.style.display = 'inline';
@@ -704,7 +708,7 @@ function createGame(levelGame) {
             //hiển thị label vật phẩm
             updateFruitsLabel();
             //thời gian game
-            timeGame = 45;
+            timeGame = 40;
             //create matrix boardgame
             matrix = wallMatrix(levelGame);
             //create snake
@@ -725,6 +729,7 @@ function createGame(levelGame) {
             break;
         case 5:
             //setup label
+            scoreLabel.style.display = 'inline';
             score.style.display = 'inline';
             labeltimegame.style.display = 'inline';
             timeContainer.style.display = 'inline';
@@ -733,8 +738,8 @@ function createGame(levelGame) {
             // Level 6
             // ăn 10 quả táo
             numberScore = 10;
-            // set thời gian game 60s           
-            timeGame = 60;
+            // set thời gian game 50s           
+            timeGame = 50;
             //thời gian đói của rắn
             timeLeft = 10;
             numberApple = 0;
